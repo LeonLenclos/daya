@@ -2,10 +2,11 @@ import pygame
 import os
 import random
 
+class EndOfAnimation(Exception):
+    pass
+
 class Sprite(pygame.sprite.Sprite):
     
-    class EndOfAnimation(Exception):
-        pass
     
     def __init__(self, name):
         """Init the Sprite
@@ -45,7 +46,7 @@ class Sprite(pygame.sprite.Sprite):
         """Load the current frame in self.frm
         If index is greater than the animation length, raise EndOfAnimation"""
         if self.index >= len(self.frames[self.variation_index]):
-            raise self.EndOfAnimation()
+            raise EndOfAnimation()
         self.frm = self.frames[self.variation_index][self.index]
 
     def update(self):

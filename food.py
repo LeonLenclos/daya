@@ -1,4 +1,4 @@
-from sprite import Sprite
+from sprite import Sprite, EndOfAnimation
 
 class Food():
     """The food that the bird eats"""
@@ -11,7 +11,7 @@ class Food():
 
         try:
             self.sprite.update()
-        except Sprite.EndOfAnimation:
+        except EndOfAnimation:
             pass
 
     def draw(self, surface):

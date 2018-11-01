@@ -5,22 +5,26 @@ import argparse
 from bird import Bird
 from food import Food
 
-def main(fullscreen=True, debug=False, fps=6):
+def main(fullscreen=True, debug=False, fps=6, pixel_size=8, raspberry=False):
 
     pygame.init()
+
+    if raspberry:
+        import RPi.GPIO as GPIO
+        GPIO.setmode(GPIO.BCM)
+        GPIO.setup(18, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
     bird = Bird()
     food = None
 
     size = width, height = 128, 75
-    pixel_size = 8
 
     screen = pygame.surface.Surface(size)
     screen.set_alpha(None)
     window = pygame.display.set_mode((width*pixel_size, height*pixel_size))
     if fullscreen:
         pygame.display.toggle_fullscreen()
-    
+
     clock = pygame.time.Clock()
     prog_frame_count = 0
     game_frame_count = 0
@@ -40,7 +44,7 @@ def main(fullscreen=True, debug=False, fps=6):
         if game_frame_time > 1000 / fps:
             game_frame_time = 0
             game_frame_count += 1
-        
+
         # Events #
 
         event = pygame.event.poll()
@@ -52,7 +56,6 @@ def main(fullscreen=True, debug=False, fps=6):
         if pressed[pygame.K_ESCAPE]:
             pygame.quit()
             break
-
         elif pressed[pygame.K_SPACE]:
             # Feed
             if not food: food = Food()
@@ -61,6 +64,10 @@ def main(fullscreen=True, debug=False, fps=6):
             bird = Bird()
             food = None
 
+        if raspberry:
+            input_state = GPIO.input(18)
+            if input_state == False:
+                if not food: food = Food()
 
         # Update #
 
@@ -78,13 +85,13 @@ def main(fullscreen=True, debug=False, fps=6):
         if food:
             food.draw(screen)
         bird.draw(screen)
-    
+
         window.blit(
             pygame.transform.scale(
                 screen,
                 (width*pixel_size, height*pixel_size)),
             (0,0))
-    
+
         if debug:
             def write_line(line, txt):
                 label = font.render(txt.upper(), False, (0,0,0))
@@ -118,7 +125,10 @@ if __name__ == '__main__':
                     action="store_true")
     parser.add_argument("-w", "--windowed", help="disable fullscreen",
                     action="store_true")
+    parser.add_argument("-r", "--raspberry", help="raspberry pi (gpio)",
+                    action="store_true")
     parser.add_argument("-f", "--fps", help="set fps", type=int, default=12)
+    parser.add_argument("-p", "--pixelsize", help="set pixel size", type=int, default=8)
 
     args = parser.parse_args()
-    main(fullscreen=not args.windowed, debug=args.debug, fps=args.fps)
+    main(fullscreen=not args.windowed, debug=args.debug, fps=args.fps, pixel_size=args.pixelsize, raspberry=args.raspberry)
