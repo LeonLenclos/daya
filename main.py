@@ -2,7 +2,7 @@ import pygame
 import sys
 import argparse
 
-from bird import Bird
+from bird import Bird, DEATH_NEG_LIMIT, DEATH_POS_LIMIT
 from food import Food
 
 def main(fullscreen=True, debug=False, fps=6, pixel_size=8, raspberry=False):
@@ -17,13 +17,14 @@ def main(fullscreen=True, debug=False, fps=6, pixel_size=8, raspberry=False):
     bird = Bird()
     food = None
 
-    size = width, height = 128, 75
+    size = width, height = 128, 72
 
     screen = pygame.surface.Surface(size)
     screen.set_alpha(None)
     window = pygame.display.set_mode((width*pixel_size, height*pixel_size))
     if fullscreen:
         pygame.display.toggle_fullscreen()
+	pygame.mouse.set_visible(False)
 
     clock = pygame.time.Clock()
     prog_frame_count = 0
@@ -89,10 +90,18 @@ def main(fullscreen=True, debug=False, fps=6, pixel_size=8, raspberry=False):
 
         # Draw #
 
-        screen.fill((220, 220, 220))
+        screen.fill((255, 255, 255))
+        pygame.draw.rect(screen,
+            (220, 220, 220),
+            (0,
+                0,
+                width,
+                height * (bird.hunger-DEATH_NEG_LIMIT)
+                    /(DEATH_POS_LIMIT-DEATH_NEG_LIMIT) - 1),
+            0)
         if food:
-            food.draw(screen)
-        bird.draw(screen)
+            food.draw(screen, (0, -3))
+        bird.draw(screen, (0, -3))
 
         window.blit(
             pygame.transform.scale(
@@ -136,7 +145,7 @@ if __name__ == '__main__':
     parser.add_argument("-r", "--raspberry", help="raspberry pi (gpio)",
                     action="store_true")
     parser.add_argument("-f", "--fps", help="set fps", type=int, default=12)
-    parser.add_argument("-p", "--pixelsize", help="set pixel size", type=int, default=8)
+    parser.add_argument("-p", "--pixelsize", help="set pixel size", type=int, default=15)
 
     args = parser.parse_args()
     main(fullscreen=not args.windowed, debug=args.debug, fps=args.fps, pixel_size=args.pixelsize, raspberry=args.raspberry)

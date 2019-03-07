@@ -14,5 +14,5 @@ class Food():
         except EndOfAnimation:
             pass
 
-    def draw(self, surface):
-        self.sprite.draw(surface, (0,0))
+    def draw(self, surface, pos=(0,0)):
+        self.sprite.draw(surface, pos)

@@ -3,13 +3,13 @@ from sprite import Sprite, EndOfAnimation
 import os
 
 
-CHANCES_TO_DO_IDDLE_MOVE = 0.1 #0.08
-FATNESS_LIMIT = -500
-THINNES_LIMIT = 500
-DEATH_POS_LIMIT = 1000
-DEATH_NEG_LIMIT = -1000
-START_HUNGER =  -900
-FOOD_WEIGHT = 100
+CHANCES_TO_DO_IDDLE_MOVE = 0.05
+FATNESS_LIMIT = -6*60*10
+THINNES_LIMIT = 1000
+DEATH_POS_LIMIT = 8*60*10
+DEATH_NEG_LIMIT = -10000
+START_HUNGER =  0
+FOOD_WEIGHT = 1600
 EAT_FRAME = 11
 
 class Bird():
@@ -83,9 +83,9 @@ class Bird():
 
            # self.update()
 
-    def draw(self, surface):
+    def draw(self, surface, pos=(0,0)):
 
-        self.current_sprite.draw(surface, (0,0))
+        self.current_sprite.draw(surface, pos)
 
     def eat(self):
         if self.state == "eat" and self.current_sprite.index == EAT_FRAME:
