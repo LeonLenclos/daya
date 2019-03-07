@@ -29,9 +29,23 @@ def main(fullscreen=True, debug=False, fps=6, pixel_size=8, raspberry=False):
     prog_frame_count = 0
     game_frame_count = 0
     game_frame_time = 0
+    button_pressed_count = 0
     font = pygame.font.Font("LiberationMono-Regular.ttf", 20)
 
 
+
+    def action():
+        """ To be executed on user input. """
+        nonlocal food, button_pressed_count
+        if not food: food = Food()
+        button_pressed_count += 1
+        if button_pressed_count > 20:
+            reset()
+
+    def reset():
+        global food
+        bird = Bird()
+        food = None
 
     while True:
 
@@ -46,28 +60,22 @@ def main(fullscreen=True, debug=False, fps=6, pixel_size=8, raspberry=False):
             game_frame_count += 1
 
         # Events #
-
         event = pygame.event.poll()
         if event.type == pygame.QUIT:
             pygame.quit()
-            break
-
+            return
         pressed = pygame.key.get_pressed()
         if pressed[pygame.K_ESCAPE]:
             pygame.quit()
-            break
-        elif pressed[pygame.K_SPACE]:
-            # Feed
-            if not food: food = Food()
+            return
         elif pressed[pygame.K_r]:
-            # Reset
-            bird = Bird()
-            food = None
-
-        if raspberry:
-            input_state = GPIO.input(18)
-            if input_state == False:
-                if not food: food = Food()
+            reset()
+        elif pressed[pygame.K_SPACE]:
+            action()
+        elif raspberry and not GPIO.input(18) :
+            action()
+        else:
+            button_pressed_count = 0
 
         # Update #
 
