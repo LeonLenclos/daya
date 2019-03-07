@@ -36,7 +36,6 @@ class Bird():
 
     def update(self):
 
-        print(self.state)
         if self.alive:
             self.hunger += 1
 
@@ -62,7 +61,6 @@ class Bird():
                     self.state = "iddle"
             else :
                 self.state = "base"
-            print(self.state)
 
             if self.eating:
                 self.state = "eat"
@@ -93,7 +91,6 @@ class Bird():
         if self.state == "eat" and self.current_sprite.index == EAT_FRAME:
             self.hunger -= FOOD_WEIGHT
             self.eating = False
-            print("!!!")
             return True
         elif not self.eating:
             self.eating = True
