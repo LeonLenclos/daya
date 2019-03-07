@@ -2,7 +2,7 @@ import pygame
 import sys
 import argparse
 
-from bird import Bird
+from bird import Bird, DEATH_NEG_LIMIT, DEATH_POS_LIMIT
 from food import Food
 
 def main(fullscreen=True, debug=False, fps=6, pixel_size=8, raspberry=False):
@@ -82,7 +82,15 @@ def main(fullscreen=True, debug=False, fps=6, pixel_size=8, raspberry=False):
 
         # Draw #
 
-        screen.fill((220, 220, 220))
+        screen.fill((255, 255, 255))
+        pygame.draw.rect(screen,
+            (220, 220, 220),
+            (0,
+                0,
+                width,
+                height * (bird.hunger-DEATH_NEG_LIMIT)
+                    /(DEATH_POS_LIMIT-DEATH_NEG_LIMIT) - 1),
+            0)
         if food:
             food.draw(screen, (0, -3))
         bird.draw(screen, (0, -3))
