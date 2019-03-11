@@ -35,9 +35,12 @@ class Sprite(pygame.sprite.Sprite):
 
         self.reset()
 
-    def reset(self):
+    def reset(self, variation=None):
         """choose a random variation index and rst the index to 0"""
-        self.variation_index = random.randint(0, len(self.frames)-1)
+        if variation is None:
+            self.variation_index = random.randint(0, len(self.frames)-1)
+        else :
+            self.variation_index = variation
         self.index = 0
         self.load_frm()
 
@@ -45,10 +48,13 @@ class Sprite(pygame.sprite.Sprite):
     def load_frm(self):
         """Load the current frame in self.frm
         If index is greater than the animation length, raise EndOfAnimation"""
-        if self.index >= len(self.frames[self.variation_index]):
+        # if self.index >= len(self.frames[self.variation_index]):
+        #     raise EndOfAnimation()
+        try :
+            self.frm = self.frames[self.variation_index][self.index]
+        except IndexError:
             raise EndOfAnimation()
-        self.frm = self.frames[self.variation_index][self.index]
-
+            
     def update(self):
         """Load the frm and increment the index"""
         self.load_frm()

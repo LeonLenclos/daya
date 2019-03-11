@@ -3,7 +3,7 @@ from sprite import Sprite, EndOfAnimation
 import os
 
 
-CHANCES_TO_DO_IDDLE_MOVE = 0.05
+CHANCES_TO_DO_IDDLE_MOVE = 0.03
 FATNESS_LIMIT = -6*60*10
 THINNES_LIMIT = 1000
 DEATH_POS_LIMIT = 8*60*10
@@ -14,8 +14,6 @@ EAT_FRAME = 11
 
 class Bird():
     """The bird, main character of the game"""
-
-
     def __init__(self):
 
         self.sprites = {}
@@ -23,16 +21,26 @@ class Bird():
             for state in "base", "iddle", "eat", "dead":
                 path = os.path.join(weight, state)
                 self.sprites[path] = Sprite(path)
+        self.init()
 
+
+    def init(self):
         self.weight = "normal"
         self.state = "base"
         self.alive = True
         self.eating = False
         self.hunger = START_HUNGER
         self.current_sprite = self.sprites[self.get_state()]
-        
+        self.must_dance = False
+        self.dancing = False
+
     def get_state(self):
         return os.path.join(self.weight, self.state)        
+
+    def dance(self):
+        self.must_dance = True
+        self.dancing = True
+
 
     def update(self):
 
@@ -44,9 +52,6 @@ class Bird():
         try:
             self.current_sprite.update()
         except EndOfAnimation:
-
-
-
             if self.hunger > DEATH_POS_LIMIT or self.hunger < DEATH_NEG_LIMIT:
                 self.alive = False
             elif self.hunger > THINNES_LIMIT:
@@ -68,12 +73,26 @@ class Bird():
             if not self.alive:
                 self.state = "dead"
 
+
+
+            # overide if dancing
+            variation_index = None
+            if self.dancing :
+                self.weight = "normal"
+                if self.must_dance:
+                    self.state = "iddle"
+                    variation_index = 0
+                    self.must_dance = False
+                elif self.state == 'iddle':
+                    self.state = 'base'
+                
             next_sprite = self.sprites[self.get_state()]
+
             self.current_sprite = next_sprite
-            self.current_sprite.reset()
+            self.current_sprite.reset(variation_index)
+
             self.current_sprite.update()
 
-                
 
             # if self.state == "eat":
                 # next_sprite.index = self.current_sprite.index

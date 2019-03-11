@@ -5,14 +5,18 @@ import argparse
 from bird import Bird, DEATH_NEG_LIMIT, DEATH_POS_LIMIT
 from food import Food
 
-def main(fullscreen=True, debug=False, fps=6, pixel_size=8, raspberry=False):
+def main(fullscreen, debug, fps, pixel_size, raspberry, serve_at):
 
-    pygame.init()
 
+    # RaspberryPi init #
     if raspberry:
         import RPi.GPIO as GPIO
         GPIO.setmode(GPIO.BCM)
         GPIO.setup(18, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+
+
+    # Game init #
+    pygame.init()
 
     bird = Bird()
     food = None
@@ -24,7 +28,7 @@ def main(fullscreen=True, debug=False, fps=6, pixel_size=8, raspberry=False):
     window = pygame.display.set_mode((width*pixel_size, height*pixel_size))
     if fullscreen:
         pygame.display.toggle_fullscreen()
-	pygame.mouse.set_visible(False)
+        pygame.mouse.set_visible(False)
 
     clock = pygame.time.Clock()
     prog_frame_count = 0
@@ -34,27 +38,48 @@ def main(fullscreen=True, debug=False, fps=6, pixel_size=8, raspberry=False):
     font = pygame.font.Font("LiberationMono-Regular.ttf", 20)
 
 
-
+    # Game functions #
     def action():
-        """ To be executed on user input. """
-        nonlocal food, button_pressed_count
-        if not food: food = Food()
+        """To be executed on user input."""
+        nonlocal button_pressed_count
+        feed()
         button_pressed_count += 1
-        if button_pressed_count > 20:
+        if button_pressed_count > 10000:
             reset()
 
+    def feed():
+        """Drop some food"""
+        nonlocal food
+        if not food: food = Food()
+
+    def dance():
+        """Make the bird dance"""
+        nonlocal bird
+        bird.dance()
+
     def reset():
-        global food
-        bird = Bird()
+        """Reset the game"""
+        nonlocal food, bird
+        bird.init()
         food = None
 
+
+    # OSC Server #
+    if serve_at:
+        from server import serve
+        adress = serve_at, 4242
+        serve(adress, {
+            "/feed":feed,
+            "/dance":dance,
+            "/reset":reset,
+        })
+
+    # Main loop #
     while True:
 
         # Time #
-
         clock.tick()
         prog_frame_count += 1
-
         game_frame_time += clock.get_time()
         if game_frame_time > 1000 / fps:
             game_frame_time = 0
@@ -71,6 +96,8 @@ def main(fullscreen=True, debug=False, fps=6, pixel_size=8, raspberry=False):
             return
         elif pressed[pygame.K_r]:
             reset()
+        elif pressed[pygame.K_d]:
+            dance()
         elif pressed[pygame.K_SPACE]:
             action()
         elif raspberry and not GPIO.input(18) :
@@ -79,7 +106,6 @@ def main(fullscreen=True, debug=False, fps=6, pixel_size=8, raspberry=False):
             button_pressed_count = 0
 
         # Update #
-
         if game_frame_time == 0:
             if food:
                 if bird.eat():
@@ -89,7 +115,6 @@ def main(fullscreen=True, debug=False, fps=6, pixel_size=8, raspberry=False):
             bird.update()
 
         # Draw #
-
         screen.fill((255, 255, 255))
         pygame.draw.rect(screen,
             (220, 220, 220),
@@ -109,6 +134,7 @@ def main(fullscreen=True, debug=False, fps=6, pixel_size=8, raspberry=False):
                 (width*pixel_size, height*pixel_size)),
             (0,0))
 
+        # Debug #
         if debug:
             def write_line(line, txt):
                 label = font.render(txt.upper(), False, (0,0,0))
@@ -146,6 +172,13 @@ if __name__ == '__main__':
                     action="store_true")
     parser.add_argument("-f", "--fps", help="set fps", type=int, default=12)
     parser.add_argument("-p", "--pixelsize", help="set pixel size", type=int, default=15)
+    parser.add_argument("-s", "--serve-at", help="serve osc at the give adress (on port 4242)", type=str)
 
     args = parser.parse_args()
-    main(fullscreen=not args.windowed, debug=args.debug, fps=args.fps, pixel_size=args.pixelsize, raspberry=args.raspberry)
+    main(fullscreen=not args.windowed,
+        debug=args.debug,
+        fps=args.fps,
+        pixel_size=args.pixelsize,
+        raspberry=args.raspberry,
+        serve_at=args.serve_at,
+    )
