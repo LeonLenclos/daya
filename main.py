@@ -1,3 +1,6 @@
+#!/usr/bin/env python3.5
+# -*- coding: utf-8 -*-
+
 import pygame
 import sys
 import argparse
@@ -44,7 +47,7 @@ def main(fullscreen, debug, fps, pixel_size, raspberry, serve_at):
         nonlocal button_pressed_count
         feed()
         button_pressed_count += 1
-        if button_pressed_count > 10000:
+        if button_pressed_count > 100:
             reset()
 
     def feed():
@@ -63,16 +66,22 @@ def main(fullscreen, debug, fps, pixel_size, raspberry, serve_at):
         bird.init()
         food = None
 
+    def kill():
+        """Kill the bird."""
+        nonlocal bird
+        bird.hunger = DEATH_POS_LIMIT
 
     # OSC Server #
     if serve_at:
         from server import serve
         adress = serve_at, 4242
+
         try:
             serve(adress, {
                 "/feed":feed,
                 "/dance":dance,
                 "/reset":reset,
+                "/kill":kill,
             })
         except Exception:
             pass # UGLY !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

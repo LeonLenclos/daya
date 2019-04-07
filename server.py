@@ -9,7 +9,7 @@ import threading
 actions = {}
 
 def log(msg):
-    print("osc: {}".format(msg))
+    print("osc: {}".format(msg), file=open('/home/pi/log','a'))
 
 class OSCDispatcher(pythonosc.dispatcher.Dispatcher):
     """This is the class of the OSC dispatcher."""
