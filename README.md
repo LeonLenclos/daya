@@ -25,12 +25,14 @@ python3 main.py
 ### Button
 
 
-On a raspberrypi with a button that connect GPIO 18 to the Ground(GND). Run lucy with the raspberry option : `python3 main.py --raspberry`.
+On a raspberrypi run lucy with the raspberry option : `python3 main.py --raspberry`.
 
-You can now use the button !
-
+Feed button : A button that connect GPIO 18 to the Ground(GND)
 - Press the button : feed
 - Long press on the button : reset
+
+Kill button : A button that connect GPIO 22 to the Ground(GND)
+- Press the button : kill the bird
 
 ### OSC
 
@@ -41,3 +43,4 @@ You can now send OSC messages to the port `4242` of the given adress :
 - `/feed` : feed
 - `/dance` : dance
 - `/reset` : reset
+- `/kill` : kill

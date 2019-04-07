@@ -8,6 +8,9 @@ import argparse
 from bird import Bird, DEATH_NEG_LIMIT, DEATH_POS_LIMIT
 from food import Food
 
+GPIO_FEED = 18
+GPIO_KILL = 22 #?
+
 def main(fullscreen, debug, fps, pixel_size, raspberry, serve_at):
 
 
@@ -15,7 +18,8 @@ def main(fullscreen, debug, fps, pixel_size, raspberry, serve_at):
     if raspberry:
         import RPi.GPIO as GPIO
         GPIO.setmode(GPIO.BCM)
-        GPIO.setup(18, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+        GPIO.setup(GPIO_FEED, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+        GPIO.setup(GPIO_KILL, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
 
     # Game init #
@@ -111,8 +115,10 @@ def main(fullscreen, debug, fps, pixel_size, raspberry, serve_at):
             dance()
         elif pressed[pygame.K_SPACE]:
             action()
-        elif raspberry and not GPIO.input(18) :
+        elif raspberry and not GPIO.input(GPIO_FEED):
             action()
+        elif raspberry and not GPIO.input(GPIO_KILL):
+            kill()
         else:
             button_pressed_count = 0
 
