@@ -1,5 +1,6 @@
 import random
 from sprite import Sprite, EndOfAnimation
+import requests
 import os
 
 
@@ -53,7 +54,11 @@ class Bird():
             self.current_sprite.update()
         except EndOfAnimation:
             if self.hunger > DEATH_POS_LIMIT or self.hunger < DEATH_NEG_LIMIT:
-                self.alive = False
+                if self.alive:
+                    r = requests.post("http://10.0.0.10:8000/talk", json={'msg': 'dis Lucy est morte.', 'conversation_id':-1})
+                    print(r.status_code, r.reason)
+                    self.alive = False
+                    
             elif self.hunger > THINNES_LIMIT:
                 self.weight = "thin"
             elif self.hunger < FATNESS_LIMIT:

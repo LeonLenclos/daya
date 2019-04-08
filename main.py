@@ -68,12 +68,14 @@ def main(fullscreen, debug, fps, pixel_size, raspberry, serve_at):
     if serve_at:
         from server import serve
         adress = serve_at, 4242
-        serve(adress, {
-            "/feed":feed,
-            "/dance":dance,
-            "/reset":reset,
-        })
-
+        try:
+            serve(adress, {
+                "/feed":feed,
+                "/dance":dance,
+                "/reset":reset,
+            })
+        except Exception:
+            pass # UGLY !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     # Main loop #
     while True:
 
