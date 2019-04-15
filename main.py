@@ -1,9 +1,15 @@
+#!/usr/bin/env python3.5
+# -*- coding: utf-8 -*-
+
 import pygame
 import sys
 import argparse
 
 from bird import Bird, DEATH_NEG_LIMIT, DEATH_POS_LIMIT
 from food import Food
+
+GPIO_FEED = 18
+GPIO_KILL = 22 #?
 
 def main(fullscreen, debug, fps, pixel_size, raspberry, serve_at):
 
@@ -12,7 +18,8 @@ def main(fullscreen, debug, fps, pixel_size, raspberry, serve_at):
     if raspberry:
         import RPi.GPIO as GPIO
         GPIO.setmode(GPIO.BCM)
-        GPIO.setup(18, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+        GPIO.setup(GPIO_FEED, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+        GPIO.setup(GPIO_KILL, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
 
     # Game init #
@@ -44,7 +51,7 @@ def main(fullscreen, debug, fps, pixel_size, raspberry, serve_at):
         nonlocal button_pressed_count
         feed()
         button_pressed_count += 1
-        if button_pressed_count > 10000:
+        if button_pressed_count > 100:
             reset()
 
     def feed():
@@ -66,8 +73,9 @@ def main(fullscreen, debug, fps, pixel_size, raspberry, serve_at):
 
     # OSC Server #
     if serve_at:
-        from server import serve
-        adress = serve_at, 4242
+    from server import serve
+    adress = serve_at, 4242
+
         try:
             serve(adress, {
                 "/feed":feed,
@@ -102,8 +110,10 @@ def main(fullscreen, debug, fps, pixel_size, raspberry, serve_at):
             dance()
         elif pressed[pygame.K_SPACE]:
             action()
-        elif raspberry and not GPIO.input(18) :
+        elif raspberry and not GPIO.input(GPIO_FEED):
             action()
+        elif raspberry and not GPIO.input(GPIO_KILL):
+            kill()
         else:
             button_pressed_count = 0
 
